@@ -11,3 +11,5 @@ Se debe mantener la ruta como se encuentra en las carpetas para que los códigos
 El primer archivo 'alphabet' es el que incluye la primera versión modelo.
 El segundo archivo 'alphabet_final' es el que incluye la versión con la que me quedé al final.
 
+
+El archivo Deep Learning Implementation incluye la documentación de los cambios realizados

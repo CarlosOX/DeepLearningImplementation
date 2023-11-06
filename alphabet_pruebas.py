@@ -12,11 +12,30 @@ import matplotlib.pyplot as plt
 
 
 
+
+train_dir = 'datos/asl_alphabet_train/asl_alphabet_train'
+
 test_dir = 'datos/asl_alphabet_train/asl_alphabet_test'
+
+
+
+train_datagen = ImageDataGenerator(
+                    rescale = 1./255,
+                    horizontal_flip = False,
+                    validation_split = 0.2
+                    
+)
+
+train_generator = train_datagen.flow_from_directory(
+                    train_dir,
+                    target_size = (150, 150),
+                    batch_size = 20,
+                    class_mode ='categorical')
 
 
 # Generador de flujo de datos para el conjunto de prueba
 test_datagen = ImageDataGenerator(rescale=1./255)
+
 test_generator = test_datagen.flow_from_directory(
     test_dir,
     target_size=(150, 150),
@@ -24,13 +43,7 @@ test_generator = test_datagen.flow_from_directory(
     class_mode='categorical'
 )
 
-#clases
-class_word_map = {
-    0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'del', 5: 'E', 6: 'F', 7: 'G', 8: 'H', 9: 'I',
-    10: 'J', 11: 'K', 12: 'L', 13: 'M', 14: 'N', 15: 'nothing', 16: 'O', 17: 'P', 18: 'Q',
-    19: 'R', 20: 'S', 21: 'space', 22: 'T', 23: 'U', 24: 'V', 25: 'W', 26: 'X', 27: 'Y', 28: 'Z'
-}
-
+input_shape = train_generator[0][0][0].shape
 
 
 model = Sequential([

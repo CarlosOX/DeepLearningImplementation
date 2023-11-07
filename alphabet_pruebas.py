@@ -9,7 +9,8 @@ from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPooling2D
 import random
 from tensorflow.keras.applications import VGG16
 import matplotlib.pyplot as plt
-
+import requests
+from tensorflow.keras.preprocessing.image import load_img, img_to_array
 
 
 
@@ -45,8 +46,8 @@ test_generator = test_datagen.flow_from_directory(
 
 input_shape = train_generator[0][0][0].shape
 
-
-model = Sequential([
+#Modelo 1
+model_1 = Sequential([
     Conv2D(32, kernel_size=3, padding='same', activation="relu", input_shape=input_shape),
     MaxPooling2D((2, 2)),
     Conv2D(32, kernel_size=3, padding='same', strides=1, activation="relu"),
@@ -58,17 +59,68 @@ model = Sequential([
 ])
 
 # Cargar los pesos en el nuevo modelo desde el archivo
-model.load_weights('pesos_del_modelo1.h5')
+model_1.load_weights('pesos_del_modelo1.h5')
+
+
+base_model = VGG16(weights='imagenet', include_top=False, input_shape=(150, 150, 3))
+
+# Congelar las capas convolucionales del modelo base
+for layer in base_model.layers:
+    layer.trainable = False
+
+# Agregar capas personalizadas para la clasificación de señas
+x = Flatten()(base_model.output)
+output = Dense(29, activation='softmax')(x)
+
+# Crear el modelo completo
+model = Model(inputs=base_model.input, outputs=output)
+
+# Cargar los pesos del modelo desde el archivo
+model.load_weights('pesos_del_modelofinal.h5')
+
 
 
 while True:
+
     print("Menu:")
-    print("1. Realizar una predicción aleatoria")
-    print("2. Salir")
+    print("1. Realizar una predicción aleatoria de los datos de test del modelo 1")
+    print("2. Realizar una predicción aleatoria de los datos de test modelo final")
+    print("3. Realizar una predicción aleatoria del modelo final de internet")
+    print("4. Salir")
     opcion = input("Seleccione una opción: ")
        
    
     if opcion == "1":
+
+        # Elegir un índice de muestra aleatorio
+        random_sample_index = random.randint(0, len(test_generator) - 1)
+
+        # Obtener una muestra aleatoria 
+        test_samples, test_labels = test_generator[random_sample_index]
+
+        # Hacer la predicción usando el modelo
+        predictions = model_1.predict(test_samples)
+
+        # Obtener el índice de clase predicho para la muestra aleatoria
+        predicted_class_index = np.argmax(predictions[0])
+
+        # Obtener el nombre de la clase predicha
+        predicted_class = list(test_generator.class_indices.keys())[predicted_class_index]
+
+        # Obtener el nombre de la clase real
+        true_class_index = np.argmax(test_labels[0])
+        true_class = list(test_generator.class_indices.keys())[true_class_index]
+
+        # Obtener la imagen correspondiente a la muestra aleatoria
+        sample_image = test_samples[0]
+
+        # Mostrar la imagen, la clase predicha y la clase real
+        plt.imshow(sample_image)
+        plt.title(f'Clase Predicha: {predicted_class}\nClase Real: {true_class}')
+        plt.axis('off')
+        plt.show()
+    
+    elif opcion == "2":
 
         # Elegir un índice de muestra aleatorio
         random_sample_index = random.randint(0, len(test_generator) - 1)
@@ -98,9 +150,47 @@ while True:
         plt.axis('off')
         plt.show()
 
-    elif opcion == "2":
+    elif opcion == "3":
+
+
+        url = input("Ingrese la URL de la imagen: ")
+
+        try:
+            # Descargar la imagen desde la URL
+            response = requests.get(url, stream=True)
+            response.raise_for_status()
+
+            # Guardar la imagen descargada
+            with open('imagen_prediccion.jpg', 'wb') as file:
+                for chunk in response.iter_content(8192):
+                    file.write(chunk)
+
+            # Cargar y preprocesar la imagen
+            img = load_img('imagen_prediccion.jpg', target_size=(150, 150))
+            img_array = img_to_array(img)
+            img_array = img_array.reshape((1, 150, 150, 3))
+            img_array = img_array / 255.0  # Normalizar los valores de píxeles al rango [0, 1]
+
+            # Realizar la predicción usando el modelo final
+            predictions = model.predict(img_array)
+            predicted_class_index = np.argmax(predictions[0])
+            predicted_class = list(test_generator.class_indices.keys())[predicted_class_index]
+
+            # Mostrar la imagen y la clase predicha
+            plt.imshow(img)
+            plt.title(f'Clase Predicha: {predicted_class}')
+            plt.axis('off')
+            plt.show()
+
+        except Exception as e:
+            print("Error al procesar la imagen:", e)
+
+
+
+    elif opcion == "4":
         print("Saliendo del programa.")
         break
     else:
         print("Opción no válida. Por favor, seleccione una opción válida.")
+
 

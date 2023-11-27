@@ -46,20 +46,6 @@ test_generator = test_datagen.flow_from_directory(
 
 input_shape = train_generator[0][0][0].shape
 
-#Modelo 1
-model_1 = Sequential([
-    Conv2D(32, kernel_size=3, padding='same', activation="relu", input_shape=input_shape),
-    MaxPooling2D((2, 2)),
-    Conv2D(32, kernel_size=3, padding='same', strides=1, activation="relu"),
-    Conv2D(16, kernel_size=3, padding='same', strides=1, activation="relu"),
-    Conv2D(16, kernel_size=3, padding='same', strides=1, activation="relu"),
-    MaxPooling2D((2, 2)),
-    Flatten(),
-    Dense(29, activation='softmax')
-])
-
-# Cargar los pesos en el nuevo modelo desde el archivo
-model_1.load_weights('pesos_del_modelo1.h5')
 
 
 base_model = VGG16(weights='imagenet', include_top=False, input_shape=(150, 150, 3))
@@ -83,45 +69,13 @@ model.load_weights('pesos_del_modelofinal.h5')
 while True:
 
     print("Menu:")
-    print("1. Realizar una predicción aleatoria de los datos de test del modelo 1")
-    print("2. Realizar una predicción aleatoria de los datos de test modelo final")
-    print("3. Realizar una predicción aleatoria del modelo final de internet")
-    print("4. Salir")
-    opcion = input("Seleccione una opción: ")
+    print("1. Realizar una predicción aleatoria de los datos de test")
+    print("2. Realizar una predicción aleatoria con imagenes de internet")
+    print("3. Salir")
+    opcion = input("Seleccione una opción (1/2/3) : ")
        
    
     if opcion == "1":
-
-        # Elegir un índice de muestra aleatorio
-        random_sample_index = random.randint(0, len(test_generator) - 1)
-
-        # Obtener una muestra aleatoria 
-        test_samples, test_labels = test_generator[random_sample_index]
-
-        # Hacer la predicción usando el modelo
-        predictions = model_1.predict(test_samples)
-
-        # Obtener el índice de clase predicho para la muestra aleatoria
-        predicted_class_index = np.argmax(predictions[0])
-
-        # Obtener el nombre de la clase predicha
-        predicted_class = list(test_generator.class_indices.keys())[predicted_class_index]
-
-        # Obtener el nombre de la clase real
-        true_class_index = np.argmax(test_labels[0])
-        true_class = list(test_generator.class_indices.keys())[true_class_index]
-
-        # Obtener la imagen correspondiente a la muestra aleatoria
-        sample_image = test_samples[0]
-
-        # Mostrar la imagen, la clase predicha y la clase real
-        plt.imshow(sample_image)
-        plt.title(f'Clase Predicha: {predicted_class}\nClase Real: {true_class}')
-        plt.axis('off')
-        plt.show()
-    
-    elif opcion == "2":
-
         # Elegir un índice de muestra aleatorio
         random_sample_index = random.randint(0, len(test_generator) - 1)
 
@@ -150,8 +104,9 @@ while True:
         plt.axis('off')
         plt.show()
 
-    elif opcion == "3":
-
+       
+    
+    elif opcion == "2":
 
         url = input("Ingrese la URL de la imagen: ")
 
@@ -186,8 +141,7 @@ while True:
             print("Error al procesar la imagen:", e)
 
 
-
-    elif opcion == "4":
+    elif opcion == "3":
         print("Saliendo del programa.")
         break
     else:

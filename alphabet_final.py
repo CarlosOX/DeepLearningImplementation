@@ -9,6 +9,8 @@ from tensorflow.keras.models import Sequential,Model
 from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPooling2D
 import random
 from tensorflow.keras.applications import VGG16
+from sklearn.metrics import confusion_matrix, classification_report
+import seaborn as sns
 
 train_dir = 'datos/asl_alphabet_train/asl_alphabet_train'
 
@@ -26,13 +28,13 @@ train_datagen = ImageDataGenerator(
 train_generator = train_datagen.flow_from_directory(
                     train_dir,
                     target_size = (150, 150),
-                    batch_size = 20,
+                    batch_size = 128,
                     class_mode ='categorical')
 
 val_generator = train_datagen.flow_from_directory(
     train_dir,
     target_size=(150, 150),
-    batch_size=20,
+    batch_size=64,
     class_mode='categorical',
     subset='validation'  # Usar parte de los datos para validación
 )
@@ -47,8 +49,7 @@ test_generator = test_datagen.flow_from_directory(
 )
 
 
-# Build the Sequential convolutional neural network model
-
+# Construir el modelo  usando  una arquitectura para deep learning
 base_model = VGG16(weights='imagenet', include_top=False, input_shape=(150, 150, 3))
 
 
@@ -71,10 +72,10 @@ model.compile(optimizer='Adam', loss='categorical_crossentropy', metrics=['accur
 
 history = model.fit(
     train_generator,
-    steps_per_epoch =200,
+    steps_per_epoch =100,
     epochs=15,  # Número de épocas de entrenamiento
     validation_data=val_generator,
-    validation_steps = 100
+    validation_steps = 50
 )
 
 
@@ -94,7 +95,7 @@ while True:
     opcion = input("Seleccione una opción: ")
 
     if opcion == "1":
-
+        
     
         # Graficos de perdida y precision en entrenamiento y validacion
         loss = history.history['loss']
@@ -102,21 +103,53 @@ while True:
         accuracy = history.history['accuracy']
         val_accuracy = history.history['val_accuracy']
 
-        plt.figure(figsize=(12, 4))
+        plt.figure(figsize=(15, 5))
+
+        # Gráfico de pérdida
         plt.subplot(1, 2, 1)
         plt.plot(loss, label='Training Loss')
         plt.plot(val_loss, label='Validation Loss')
         plt.legend()
         plt.title('Loss vs. Epochs')
 
+        # Gráfico de precisión
         plt.subplot(1, 2, 2)
         plt.plot(accuracy, label='Training Accuracy')
         plt.plot(val_accuracy, label='Validation Accuracy')
         plt.legend()
         plt.title('Accuracy vs. Epochs')
-
-        # Mostrar todos los graficos al mismo tiempo
+        # Ajustar diseño
+        plt.tight_layout()
         plt.show()
+
+
+
+        opcion_matriz = input("¿Desea ver la matriz de confusión? (y/n): ")
+
+        if opcion_matriz.lower() == "y":
+            plt.figure(figsize=(8, 6))
+            # Matriz de confusión
+            y_true = []
+            y_pred = []
+
+            for i in range(len(test_generator)):
+                test_samples, test_labels = test_generator[i]
+                predictions = model.predict(test_samples)
+                y_true.extend(np.argmax(test_labels, axis=1))
+                y_pred.extend(np.argmax(predictions, axis=1))
+
+            cm = confusion_matrix(y_true, y_pred)
+            sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
+                        xticklabels=test_generator.class_indices.keys(),
+                        yticklabels=test_generator.class_indices.keys(),
+                        cbar=False)
+            plt.title('Confusion Matrix')
+            plt.show()
+
+          
+        # Informe de clasificación
+        target_names = list(test_generator.class_indices.keys())
+        print(classification_report(y_true, y_pred, target_names=target_names))
 
     elif opcion == "2":
 

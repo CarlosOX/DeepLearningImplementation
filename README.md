@@ -1,9 +1,15 @@
 # DeepLearningImplementation
 
 
-# Aqui se encuentra el link con la carpeta de los datos y los pesos del modelo final, debido al peso de los archivos no los pude subir aquí a Github. 
+# Aqui se encuentra el link con la carpeta de los datos, debido al peso de los archivos no los pude subir aquí a Github. 
 
 https://drive.google.com/file/d/1SMxVFY48wZ1rXAluafwbnarigEJvjyw5/view?usp=sharing
+
+
+# Aqui se encuentran los pesos del modelo final, para poder ejecutar el archivo alphabet_pruebas se tienen que tener estos pesos, se espera que este archivo se encuentre en la misma ruta que el codigo para que funcione bien, en caso de cambiar la ruta debe cambiarse en el codigo tambien.
+
+https://drive.google.com/file/d/1SiIT_XfhYo-xH6_a_lqFB4BXNbtxhuHm/view?usp=sharing
+
 
 Se debe mantener la ruta como se encuentra en las carpetas para que los códigos que hacen el entrenamiento y las predicciones funcionen.
 

@@ -1,7 +1,7 @@
 # DeepLearningImplementation
 
 
-# Aqui se encuentra el link con la carpeta de los datos, debido a la cantidad de datos no la pude subir aquí a Github. 
+# Aqui se encuentra el link con la carpeta de los datos y los pesos del modelo final, debido al peso de los archivos no los pude subir aquí a Github. 
 
 https://drive.google.com/file/d/1SMxVFY48wZ1rXAluafwbnarigEJvjyw5/view?usp=sharing
 
